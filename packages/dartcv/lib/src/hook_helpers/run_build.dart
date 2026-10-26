@@ -43,7 +43,10 @@ Future<void> runBuild(BuildInput input, BuildOutputBuilder output, {Set<String>?
   // `hooks_runner/shared/<package>/` directory (checksum-independent) so both
   // this build hook and the link hook can find it across build passes.
   final keepFileUri = input.outputDirectory.resolve('../../dartcv_keep.txt');
-  final keepFile = File.fromUri(keepFileUri).existsSync() ? keepFileUri.toFilePath() : null;
+  // Only honour the keep-list when tree-shaking is asked for: a stale or
+  // empty list (#462) otherwise strips every later build's exports.
+  final keepFile =
+      args.treeshake && File.fromUri(keepFileUri).existsSync() ? keepFileUri.toFilePath() : null;
 
   final logger = Logger('')
     ..level = Level.ALL
